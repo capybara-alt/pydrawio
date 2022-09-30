@@ -12,6 +12,7 @@ VERSION = pydrawio.__version__
 PYTHON_REQUIRES = '>=3.7'
 
 PACKAGES = [
+    'core',
     'pydrawio'
 ]
 
