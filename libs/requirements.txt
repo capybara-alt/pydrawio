@@ -1,4 +1,0 @@
-Jedi
-setuptools
-twine
-wheel

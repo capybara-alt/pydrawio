@@ -4,3 +4,4 @@ venv/
 dist
 pydrawio.egg-info
 build
+libs/
