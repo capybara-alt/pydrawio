@@ -99,8 +99,7 @@ class MxCell(IContent):
 
     def __init__(self, element: ET.Element):
         super().__init__(element)
-        mxgeometry = element.find('mxGeometry')
-        self.mxGeometry = MxGeometry(mxgeometry) if mxgeometry else None
+        self.mxGeometry = element.find('mxGeometry')
 
     def make_tree(self) -> ET.ElementTree:
         mxcell = ET.Element('mxCell')
@@ -122,8 +121,7 @@ class Object(IContent):
 
     def __init__(self, element: ET.Element):
         super().__init__(element)
-        object_ = element.find('object')
-        self.mxCell = MxCell(element) if object_ else None
+        self.mxCell = element.find('mxCell')
 
     def make_tree(self) -> ET.ElementTree:
         object_ = ET.Element('object')
