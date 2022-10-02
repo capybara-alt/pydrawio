@@ -49,8 +49,7 @@ class MxGeometry(XmlObject):
 
     def __init__(self, element: ET.Element):
         super().__init__(element)
-        mxpoint = element.find('mxPoint')
-        self.mxPoint = MxPoint(mxpoint) if mxpoint else None
+        self.mxPoint = MxPoint(element.find('mxPoint')) if element.find('mxPoint') is not None else None
 
     def make_tree(self) -> ET.ElementTree:
         mxgeometry = ET.Element('mxGeometry')
@@ -99,7 +98,7 @@ class MxCell(IContent):
 
     def __init__(self, element: ET.Element):
         super().__init__(element)
-        self.mxGeometry = element.find('mxGeometry')
+        self.mxGeometry = MxGeometry(element.find('mxGeometry')) if element.find('mxGeometry') is not None else None
 
     def make_tree(self) -> ET.ElementTree:
         mxcell = ET.Element('mxCell')
@@ -121,7 +120,7 @@ class Object(IContent):
 
     def __init__(self, element: ET.Element):
         super().__init__(element)
-        self.mxCell = element.find('mxCell')
+        self.mxCell = MxCell(element.find('mxCell')) if element.find('mxCell') is not None else None
 
     def make_tree(self) -> ET.ElementTree:
         object_ = ET.Element('object')
@@ -195,8 +194,7 @@ class MxGraphModel(XmlObject):
         tree = ET.ElementTree(ET.fromstring(xmlstr))
         root = tree.getroot()
         super().__init__(root)
-        content = root.find('root')
-        self.content = Root(content) if content else None
+        self.content = Root(root.find('root')) if root.find('root') is not None else None
 
     def make_tree(self) -> ET.ElementTree:
         mxGraphModel = ET.Element('mxGraphModel')
