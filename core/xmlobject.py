@@ -29,8 +29,8 @@ class XmlObject(metaclass=ABCMeta):
 
         str_fields = filter(lambda key : type(self.__dict__[key]) is str, self.__dict__)
         for key in str_fields:
-            if keyword.iskeyword(key):
-                element.attrib[key] = self.__dict__[key[:len(key)]]
+            if keyword.iskeyword(key.removesuffix('_')):
+                element.attrib[key.removesuffix('_')] = self.__dict__[key]
             else:
                 element.attrib[key] = self.__dict__[key]
 
