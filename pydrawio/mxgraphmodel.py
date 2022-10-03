@@ -7,17 +7,25 @@ from typing import Dict, List
 from abc import ABCMeta, abstractmethod
 from core import XmlObject
 
-class MxPoint(XmlObject):
-    ''' MxPoint
+class IPosition(XmlObject):
+    ''' IPosition
+    Superclasses MxPoint and MxGeometry
     Attributes:
-        x (str)
-        y (str)
-        as_ (str)
     '''
-
     x: str
     y: str
     as_: str
+
+    def __init__(self, element: ET.Element):
+        super().__init__(element)
+
+    @abstractmethod
+    def make_tree(self) -> ET.ElementTree:
+        raise NotImplementedError
+
+class MxPoint(IPosition):
+    ''' MxPoint
+    '''
 
     def __init__(self, element: ET.Element):
         super().__init__(element)
@@ -27,23 +35,17 @@ class MxPoint(XmlObject):
 
         return ET.ElementTree(self.set_attrib(mxpoint))
 
-class MxGeometry(XmlObject):
+class MxGeometry(IPosition):
     ''' MxGeometry
     Attributes:
-        x (str)
-        y (str)
         width (str)
         height (str)
-        as_ (str)
         relative (str)
         mxPoint (MxPoint)
     '''
 
-    x: str
-    y: str
     width: str
     height: str
-    as_: str
     relative: str
     mxPoint: List[MxPoint]
 
@@ -87,7 +89,7 @@ class MxCell(IContent):
         target (str)
         edge (str)
         vertex (str)
-        mxGeometry (MxGeometry)
+        iposition (List[IPosition])
     '''
 
     value: str
@@ -97,17 +99,20 @@ class MxCell(IContent):
     target: str
     edge: str
     vertex: str
-    mxGeometry: MxGeometry
+    iposition: List[IPosition]
 
     def __init__(self, element: ET.Element):
         super().__init__(element)
-        self.mxGeometry = MxGeometry(element.find('mxGeometry')) if element.find('mxGeometry') is not None else None
+        self.iposition = []
+        ipositions = list(element)
+        for iposition in ipositions:
+            self.iposition.append(MxGeometry(iposition) if iposition.tag == 'mxGeometry' is not None else self.iposition.append(MxPoint(iposition)))
 
     def make_tree(self) -> ET.ElementTree:
         mxcell = ET.Element('mxCell')
         mxcell = self.set_attrib(mxcell)
-        if self.mxGeometry is not None:
-            mxcell.append(self.mxGeometry.make_tree().getroot())
+        for iposition in self.iposition:
+            mxcell.append(iposition.make_tree().getroot())
 
         return ET.ElementTree(mxcell)
 
@@ -146,7 +151,7 @@ class Root(XmlObject):
         self.items = []
         contents = list(element)
         for content in contents:
-            self.items.append(Object(content)) if content.find('mxCell') else self.items.append(MxCell(content))
+            self.items.append(Object(content)) if content.tag == 'object' else self.items.append(MxCell(content))
 
     def make_tree(self) -> ET.ElementTree:
         root = ET.Element('root')
