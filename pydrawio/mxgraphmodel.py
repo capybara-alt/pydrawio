@@ -45,17 +45,20 @@ class MxGeometry(XmlObject):
     height: str
     as_: str
     relative: str
-    mxPoint: MxPoint
+    mxPoint: List[MxPoint]
 
     def __init__(self, element: ET.Element):
         super().__init__(element)
-        self.mxPoint = MxPoint(element.find('mxPoint')) if element.find('mxPoint') is not None else None
+        self.mxPoint = []
+        mxpoint = list(element)
+        for point in mxpoint:
+            self.mxPoint.append(MxPoint(point))
 
     def make_tree(self) -> ET.ElementTree:
         mxgeometry = ET.Element('mxGeometry')
         mxgeometry = self.set_attrib(mxgeometry)
-        if self.mxPoint is not None:
-            mxgeometry.append(self.mxPoint.make_tree().getroot())
+        for mxpoint in self.mxPoint:
+            mxgeometry.append(mxpoint.make_tree().getroot())
 
         return ET.ElementTree(mxgeometry)
 
